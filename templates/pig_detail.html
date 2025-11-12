@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Pig {{ pig.id }} - Pig Farm Manager{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="page-header">
+    <h1>Pig Details: {{ pig.id }}</h1>
+    <p>{% if pig.name %}{{ pig.name }} - {% endif %}View and manage pig information</p>
+</div>
+
+<div class="row">
+    <!-- Left Column: Pig Info -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Pig Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>ID:</strong> {{ pig.id }}</p>
+                {% if pig.name %}
+                <p><strong>Name:</strong> {{ pig.name }}</p>
+                {% endif %}
+                <p><strong>Date of Birth:</strong> {{ pig.dob.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Sex:</strong> {{ pig.sex }}</p>
+                <p><strong>Breed:</strong> {{ pig.breed }}</p>
+                <p><strong>Status:</strong> 
+                    {% if pig.status == 'ALIVE' %}
+                        <span class="badge bg-success">ALIVE</span>
+                    {% else %}
+                        <span class="badge bg-danger">SLAUGHTERED</span>
+                    {% endif %}
+                </p>
+                {% if pig.kill_date %}
+                <p><strong>Kill Date:</strong> {{ pig.kill_date.strftime('%Y-%m-%d') }}</p>
+                {% endif %}
+                
+                {% if pig.status == 'ALIVE' %}
+                <hr>
+                <button class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#slaughterModal">
+                    <i class="bi bi-x-circle"></i> Mark as Slaughtered
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Weight Form -->
+        <div class="card mt-3">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Record Weight</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('weigh_pig', pig_id=pig.id) }}">
+                    <div class="mb-3">
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input type="number" step="0.1" class="form-control" id="weight" name="weight" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Add Weight
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column: Chart & Weight History -->
+    <div class="col-md-8 mb-4">
+        <!-- Weight Chart -->
+        {% if chart_data %}
+        <div class="card mb-3">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Weight Over Time</h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="data:image/png;base64,{{ chart_data }}" class="img-fluid" alt="Weight Chart">
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Weight History Table -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Weight History</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Weight (kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for weight in weights %}
+                            <tr>
+                                <td>{{ weight.date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ weight.weight }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">No weight records yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slaughter Modal -->
+<div class="modal fade" id="slaughterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mark Pig as Slaughtered</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('slaughter_pig', pig_id=pig.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="kill_date" class="form-label">Kill Date</label>
+                        <input type="date" class="form-control" id="kill_date" name="kill_date" required>
+                    </div>
+                    <p class="text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> 
+                        This action cannot be undone.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Confirm Slaughter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pig-detail.js') }}"></script>
+{% endblock %}

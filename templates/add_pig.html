@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Add Pig - Pig Farm Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-plus-circle"></i> Add New Pig</h1>
+    <p>Enter the pig's information below</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('add_pig') }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="pig_id" class="form-label">Pig ID *</label>
+                            <input type="text" class="form-control" id="pig_id" name="pig_id" required>
+                            <small class="text-muted">Must be unique (e.g., PIG001, A123)</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Name (Optional)</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="e.g., Wilbur, Babe">
+                            <small class="text-muted">Leave blank if you don't want to name the pig</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="dob" class="form-label">Date of Birth *</label>
+                            <input type="date" class="form-control" id="dob" name="dob" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="sex" class="form-label">Sex *</label>
+                            <select class="form-select" id="sex" name="sex" required>
+                                <option value="">Choose...</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="breed" class="form-label">Breed *</label>
+                            <input type="text" class="form-control" id="breed" name="breed" 
+                                   placeholder="e.g., Yorkshire, Duroc, Hampshire, Berkshire" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Add Pig
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+{% endblock %}

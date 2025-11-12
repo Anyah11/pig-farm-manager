@@ -1,0 +1,44 @@
+# Virtual Environment
+venv/
+venv312/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Environment Variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Flask
+instance/
+.webassets-cache
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.backup

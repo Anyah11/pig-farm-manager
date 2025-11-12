@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Pig Farm Manager{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Overview of your pig farm</p>
+    </div>
+    <a href="{{ url_for('add_pig') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add New Pig
+    </a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body py-4">
+                <i class="bi bi-heart-fill text-success" style="font-size: 3rem;"></i>
+                <h2 class="mt-3 mb-0">{{ alive_count }}</h2>
+                <p class="text-muted mb-0">Alive Pigs</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body py-4">
+                <i class="bi bi-x-circle-fill text-danger" style="font-size: 3rem;"></i>
+                <h2 class="mt-3 mb-0">{{ slaughtered_count }}</h2>
+                <p class="text-muted mb-0">Slaughtered Pigs</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pigs Table -->
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">All Pigs</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Pig ID</th>
+                        <th>Name</th>
+                        <th>DOB</th>
+                        <th>Sex</th>
+                        <th>Breed</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pig in pigs %}
+                    <tr>
+                        <td><strong>{{ pig.id }}</strong></td>
+                        <td>{{ pig.name if pig.name else '-' }}</td>
+                        <td>{{ pig.dob.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ pig.sex }}</td>
+                        <td>{{ pig.breed }}</td>
+                        <td>
+                            {% if pig.status == 'ALIVE' %}
+                                <span class="badge bg-success">ALIVE</span>
+                            {% else %}
+                                <span class="badge bg-danger">SLAUGHTERED</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('pig_detail', pig_id=pig.id) }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            No pigs in the system yet. 
+                            <a href="{{ url_for('add_pig') }}">Add your first pig</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
