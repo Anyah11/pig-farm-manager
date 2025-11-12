@@ -206,7 +206,11 @@ def pig_detail(pig_id):
             })
         else:
             diff = w.weight - previous_weight
-            pct = (diff / previous_weight) * 100
+            # Prevent division by zero
+            if previous_weight > 0:
+                pct = (diff / previous_weight) * 100
+            else:
+                pct = 0  # or None, or 'N/A' depending on what you want
             weight_history.append({
                 "date": w.date,
                 "weight": w.weight,
@@ -336,7 +340,7 @@ def export_csv():
             for w in weights:
                 diff = ''
                 pct = ''
-                if previous_weight is not None:
+                if previous_weight is not None and previous_weight > 0:
                     diff = round(w.weight - previous_weight, 2)
                     pct = round((diff / previous_weight) * 100, 2)
                 
