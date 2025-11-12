@@ -297,7 +297,8 @@ def slaughter_pig(pig_id):
     db.session.commit()
     
     flash(f'Pig {pig_id} marked as slaughtered on {kill_date}', 'info')
-    return redirect(url_for('pig_detail', pig_id=pig_id))
+    return redirect(url_for('pig_detail', pig_id=pig_id)
+    )
 
 
 @app.route('/export/csv')
