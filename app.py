@@ -304,31 +304,64 @@ def slaughter_pig(pig_id):
 @app.route('/export/csv')
 @login_required
 def export_csv():
-    """Export all pig data to CSV"""
+    """Export all pig data with complete weight history to CSV"""
     pigs = Pig.query.all()
     
     output = io.StringIO()
     writer = csv.writer(output)
     
-    writer.writerow(['Pig ID', 'DOB', 'Sex', 'Breed', 'Status', 'Kill Date'])
+    # Header
+    writer.writerow(['Pig ID', 'DOB', 'Sex', 'Breed', 'Status', 'Kill Date', 
+                     'Weight (kg)', 'Weight Date', 'Weight Change (kg)', 'Weight Change (%)'])
     
     for pig in pigs:
-        writer.writerow([
-            pig.id,
-            pig.dob.strftime('%Y-%m-%d'),
-            pig.sex,
-            pig.breed,  # FIXED
-            pig.status,
-            pig.kill_date.strftime('%Y-%m-%d') if pig.kill_date else ''
-        ])
+        weights = Weight.query.filter_by(pig_id=pig.id).order_by(Weight.date.asc()).all()
+        
+        if not weights:
+            # Pig with no weights
+            writer.writerow([
+                pig.id,
+                pig.dob.strftime('%Y-%m-%d'),
+                pig.sex,
+                pig.breed,
+                pig.status,
+                pig.kill_date.strftime('%Y-%m-%d') if pig.kill_date else '',
+                'No weights recorded',
+                '',
+                '',
+                ''
+            ])
+        else:
+            previous_weight = None
+            for w in weights:
+                diff = ''
+                pct = ''
+                if previous_weight is not None:
+                    diff = round(w.weight - previous_weight, 2)
+                    pct = round((diff / previous_weight) * 100, 2)
+                
+                writer.writerow([
+                    pig.id,
+                    pig.dob.strftime('%Y-%m-%d'),
+                    pig.sex,
+                    pig.breed,
+                    pig.status,
+                    pig.kill_date.strftime('%Y-%m-%d') if pig.kill_date else '',
+                    w.weight,
+                    w.date.strftime('%Y-%m-%d'),
+                    diff,
+                    pct
+                ])
+                previous_weight = w.weight
     
     output.seek(0)
     return send_file(
         io.BytesIO(output.getvalue().encode()),
         mimetype='text/csv',
         as_attachment=True,
-        download_name=f'pig_farm_data_{datetime.now().strftime("%Y%m%d")}.csv'
+        download_name=f'pig_farm_complete_data_{datetime.now().strftime("%Y%m%d")}.csv'
     )
+
 
 
 # ============================================
