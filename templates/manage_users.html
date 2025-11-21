@@ -6,7 +6,7 @@
 <div class="page-header d-flex justify-content-between align-items-center">
     <div>
         <h1><i class="bi bi-people"></i> User Management</h1>
-        <p>Add and manage system users</p>
+        <p>Add and manage system users with different roles</p>
     </div>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
         <i class="bi bi-person-plus"></i> Add New User
@@ -23,22 +23,32 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Username</th>
                         <th>Role</th>
+                        <th>Assigned Barn</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for user in users %}
                     <tr>
-                        <td>{{ user.id }}</td>
                         <td><strong>{{ user.username }}</strong></td>
                         <td>
-                            {% if user.is_admin %}
-                                <span class="badge bg-danger">Admin</span>
+                            {% if user.role == 'ADMIN' %}
+                                <span class="badge bg-danger"><i class="bi bi-shield-lock"></i> Admin</span>
+                            {% elif user.role == 'FARMER' %}
+                                <span class="badge bg-warning"><i class="bi bi-person"></i> Farmer</span>
                             {% else %}
-                                <span class="badge bg-primary">User</span>
+                                <span class="badge bg-info"><i class="bi bi-eye"></i> Helper</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.barn %}
+                                {{ user.barn.name }}
+                            {% elif user.role == 'ADMIN' %}
+                                <span class="text-muted">All Barns</span>
+                            {% else %}
+                                <span class="text-muted">None</span>
                             {% endif %}
                         </td>
                         <td>
@@ -50,7 +60,7 @@
                                 </button>
                             </form>
                             {% else %}
-                            <span class="text-muted">Current User</span>
+                            <span class="text-muted"><i class="bi bi-check-circle"></i> Current User</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -80,13 +90,23 @@
                         <input type="password" class="form-control" id="password" name="password" required minlength="6">
                         <small class="text-muted">Minimum 6 characters</small>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin">
-                        <label class="form-check-label" for="is_admin">
-                            <strong>Make this user an admin</strong>
-                            <br>
-                            <small class="text-muted">Admins can manage users and access all features</small>
-                        </label>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role *</label>
+                        <select class="form-select" id="role" name="role" required onchange="updateBarnField()">
+                            <option value="ADMIN">Admin - Full access to all features</option>
+                            <option value="FARMER">Farmer - Can manage pigs in assigned barn</option>
+                            <option value="HELPER">Helper - View-only access to assigned barn</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="barnField" style="display:none;">
+                        <label for="barn_id" class="form-label">Assign Barn</label>
+                        <select class="form-select" id="barn_id" name="barn_id">
+                            <option value="">Choose a barn...</option>
+                            {% for barn in barns %}
+                            <option value="{{ barn.id }}">{{ barn.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Admins have access to all barns</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -99,7 +119,21 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
+
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+<script>
+function updateBarnField() {
+    const role = document.getElementById('role').value;
+    const barnField = document.getElementById('barnField');
+    if (role === 'ADMIN') {
+        barnField.style.display = 'none';
+    } else {
+        barnField.style.display = 'block';
+    }
+}
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', updateBarnField);
+</script>
 {% endblock %}

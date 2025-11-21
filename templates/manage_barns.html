@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Barns - Pig Farm Manager{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="bi bi-building"></i> Barn Management</h1>
+        <p>Add and manage barns on your farm</p>
+    </div>
+    <a href="{{ url_for('add_barn') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add New Barn
+    </a>
+</div>
+
+<!-- Barns List -->
+<div class="row">
+    {% for barn in barns %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-building"></i> {{ barn.name }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Location:</strong> {{ barn.location or 'Not specified' }}</p>
+                <p><strong>Capacity:</strong> {{ barn.capacity or 'Unlimited' }} pigs</p>
+                <p><strong>Total Pigs:</strong> {{ barn.pigs|length }}</p>
+                <p><strong>Sections:</strong> {{ barn.sections|length }}</p>
+                <hr>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('manage_sections', barn_id=barn.id) }}" class="btn btn-sm btn-info">
+                        <i class="bi bi-grid"></i> Sections
+                    </a>
+                    <a href="{{ url_for('edit_barn', barn_id=barn.id) }}" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                    <form method="POST" action="{{ url_for('delete_barn', barn_id=barn.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" 
+                                onclick="return confirm('Delete this barn? All pigs will be deleted.')">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center text-muted py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                <p class="mt-3">No barns yet. <a href="{{ url_for('add_barn') }}">Create one now</a></p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

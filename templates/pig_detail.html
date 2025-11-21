@@ -9,9 +9,21 @@
     </a>
 </div>
 
-<div class="page-header">
-    <h1>Pig Details: {{ pig.id }}</h1>
-    <p>{% if pig.name %}{{ pig.name }} - {% endif %}View and manage pig information</p>
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1>Pig Details: {{ pig.id }}</h1>
+        <p>View and manage pig information</p>
+    </div>
+    {% if user_role in ['ADMIN', 'FARMER'] %}
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('edit_pig', pig_id=pig.id) }}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit Pig
+        </a>
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePigModal">
+            <i class="bi bi-trash"></i> Delete Pig
+        </button>
+    </div>
+    {% endif %}
 </div>
 
 <div class="row">
@@ -23,12 +35,16 @@
             </div>
             <div class="card-body">
                 <p><strong>ID:</strong> {{ pig.id }}</p>
-                {% if pig.name %}
-                <p><strong>Name:</strong> {{ pig.name }}</p>
+                <p><strong>Barn:</strong> {{ pig.barn.name }}</p>
+                {% if pig.section %}
+                <p><strong>Section:</strong> {{ pig.section.name }}</p>
                 {% endif %}
                 <p><strong>Date of Birth:</strong> {{ pig.dob.strftime('%Y-%m-%d') }}</p>
                 <p><strong>Sex:</strong> {{ pig.sex }}</p>
                 <p><strong>Breed:</strong> {{ pig.breed }}</p>
+                {% if pig.notes %}
+                <p><strong>Notes:</strong><br>{{ pig.notes }}</p>
+                {% endif %}
                 <p><strong>Status:</strong> 
                     {% if pig.status == 'ALIVE' %}
                         <span class="badge bg-success">ALIVE</span>
@@ -40,7 +56,7 @@
                 <p><strong>Kill Date:</strong> {{ pig.kill_date.strftime('%Y-%m-%d') }}</p>
                 {% endif %}
                 
-                {% if pig.status == 'ALIVE' %}
+                {% if pig.status == 'ALIVE' and user_role in ['ADMIN', 'FARMER'] %}
                 <hr>
                 <button class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#slaughterModal">
                     <i class="bi bi-x-circle"></i> Mark as Slaughtered
@@ -50,6 +66,7 @@
         </div>
         
         <!-- Weight Form -->
+        {% if user_role in ['ADMIN', 'FARMER'] %}
         <div class="card mt-3">
             <div class="card-header bg-white">
                 <h5 class="mb-0">Record Weight</h5>
@@ -70,6 +87,7 @@
                 </form>
             </div>
         </div>
+        {% endif %}
     </div>
     
     <!-- Right Column: Chart & Weight History -->
@@ -98,22 +116,58 @@
                             <tr>
                                 <th>Date</th>
                                 <th>Weight (kg)</th>
+                                <th>Change</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for weight in weights %}
                             <tr>
                                 <td>{{ weight.date.strftime('%Y-%m-%d') }}</td>
-                                <td>{{ weight.weight }}</td>
+                                <td><strong>{{ weight.weight }}</strong></td>
+                                <td>
+                                    {% if weight.diff is not none %}
+                                        {% if weight.diff > 0 %}
+                                            <span class="text-success"><i class="bi bi-arrow-up"></i> +{{ weight.diff }}kg ({{ weight.pct|round(1) }}%)</span>
+                                        {% elif weight.diff < 0 %}
+                                            <span class="text-danger"><i class="bi bi-arrow-down"></i> {{ weight.diff }}kg ({{ weight.pct|round(1) }}%)</span>
+                                        {% else %}
+                                            <span class="text-muted">No change</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">First record</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="2" class="text-center text-muted">No weight records yet.</td>
+                                <td colspan="3" class="text-center text-muted">No weight records yet.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Pig Modal -->
+<div class="modal fade" id="deletePigModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Pig</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete pig <strong>{{ pig.id }}</strong>?</p>
+                <p class="text-danger"><i class="bi bi-exclamation-triangle"></i> This action cannot be undone and will delete all weight records.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('delete_pig', pig_id=pig.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Delete Pig</button>
+                </form>
             </div>
         </div>
     </div>
@@ -150,5 +204,4 @@
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/forms.js') }}"></script>
-<script src="{{ url_for('static', filename='js/pig-detail.js') }}"></script>
 {% endblock %}

@@ -37,33 +37,52 @@
                 <span>Dashboard</span>
             </a>
             
+            {% if session.role in ['ADMIN', 'FARMER'] %}
             <a href="{{ url_for('add_pig') }}" class="{% if request.endpoint == 'add_pig' %}active{% endif %}">
                 <i class="bi bi-plus-circle"></i>
                 <span>Add Pig</span>
+            </a>
+            {% endif %}
+            
+            {% if session.role == 'ADMIN' %}
+            <a href="{{ url_for('manage_barns') }}" class="{% if request.endpoint == 'manage_barns' %}active{% endif %}">
+                <i class="bi bi-building"></i>
+                <span>Manage Barns</span>
+            </a>
+            
+            <a href="{{ url_for('manage_users') }}" class="{% if request.endpoint == 'manage_users' %}active{% endif %}">
+                <i class="bi bi-people"></i>
+                <span>Manage Users</span>
+            </a>
+            {% endif %}
+            
+            <a href="{{ url_for('weight_comparison') }}" class="{% if request.endpoint == 'weight_comparison' %}active{% endif %}">
+                <i class="bi bi-graph-up"></i>
+                <span>Weight Compare</span>
+            </a>
+            
+            <a href="{{ url_for('barn_statistics') }}" class="{% if request.endpoint == 'barn_statistics' %}active{% endif %}">
+                <i class="bi bi-bar-chart"></i>
+                <span>Statistics</span>
             </a>
             
             <a href="{{ url_for('export_csv') }}">
                 <i class="bi bi-download"></i>
                 <span>Export Data</span>
             </a>
-            
-            {% if session.is_admin %}
-            <a href="{{ url_for('manage_users') }}" class="{% if request.endpoint == 'manage_users' %}active{% endif %}">
-                <i class="bi bi-people"></i>
-                <span>Manage Users</span>
-            </a>
-            {% endif %}
-        </div>
+    </div>
         
         <div class="sidebar-footer">
             <div class="user-info">
                 <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
                 <strong>{{ session.username }}</strong>
                 <small>
-                    {% if session.is_admin %}
-                    <i class="bi bi-star-fill"></i> Administrator
+                    {% if session.role == 'ADMIN' %}
+                    <i class="bi bi-shield-lock"></i> Admin
+                    {% elif session.role == 'FARMER' %}
+                    <i class="bi bi-person"></i> Farmer
                     {% else %}
-                    <i class="bi bi-person"></i> User
+                    <i class="bi bi-eye"></i> Helper
                     {% endif %}
                 </small>
             </div>

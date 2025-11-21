@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Pig - Pig Farm Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-pencil"></i> Edit Pig: {{ pig.id }}</h1>
+    <p>Update pig information</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('edit_pig', pig_id=pig.id) }}">
+                    <div class="mb-3">
+                        <label for="sex" class="form-label">Sex *</label>
+                        <select class="form-select" id="sex" name="sex" required>
+                            <option value="">Choose...</option>
+                            <option value="Male" {% if pig.sex == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if pig.sex == 'Female' %}selected{% endif %}>Female</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="breed" class="form-label">Breed *</label>
+                        <input type="text" class="form-control" id="breed" name="breed" value="{{ pig.breed }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="section_id" class="form-label">Section</label>
+                        <select class="form-select" id="section_id" name="section_id">
+                            <option value="">None</option>
+                            {% for section in sections %}
+                            <option value="{{ section.id }}" {% if pig.section_id == section.id %}selected{% endif %}>{{ section.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4">{{ pig.notes or '' }}</textarea>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Save Changes
+                        </button>
+                        <a href="{{ url_for('pig_detail', pig_id=pig.id) }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Weight Comparison - Pig Farm Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-graph-up"></i> Weight Comparison</h1>
+    <p>Compare weight progress across multiple pigs</p>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Select Pigs</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('weight_comparison') }}" id="comparisonForm">
+                    <div class="mb-3">
+                        <label for="chart_type" class="form-label">Chart Type</label>
+                        <select class="form-select" id="chart_type" name="chart_type">
+                            <option value="line">Line Chart</option>
+                            <option value="bar">Bar Chart</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pig_ids" class="form-label">Choose Pigs</label>
+                        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px;">
+                            {% for pig in pigs %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="pig_{{ pig.id }}" name="pig_ids" value="{{ pig.id }}">
+                                <label class="form-check-label" for="pig_{{ pig.id }}">
+                                    {{ pig.id }} <small class="text-muted">({{ pig.barn.name }})</small>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-graph-up"></i> Generate Chart
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        {% if chart_data %}
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Chart</h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="data:image/png;base64,{{ chart_data }}" class="img-fluid" alt="Weight Comparison Chart" style="max-width: 100%; height: auto;">
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body text-center text-muted py-5">
+                <i class="bi bi-graph-up" style="font-size: 3rem;"></i>
+                <p class="mt-3">Select pigs and click "Generate Chart" to compare their weight progress</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

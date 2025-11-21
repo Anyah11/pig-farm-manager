@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-
 {% block title %}Add Pig - Pig Farm Manager{% endblock %}
-
 {% block content %}
 <div class="page-header">
     <h1><i class="bi bi-plus-circle"></i> Add New Pig</h1>
@@ -12,25 +10,43 @@
     <div class="col-md-10">
         <div class="card">
             <div class="card-body p-4">
-                <form method="POST" action="{{ url_for('add_pig') }}">
+
+                <form method="POST" action="{{ url_for('add_pig') }}" id="addPigForm">
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="pig_id" class="form-label">Pig ID *</label>
                             <input type="text" class="form-control" id="pig_id" name="pig_id" required>
                             <small class="text-muted">Must be unique (e.g., PIG001, A123)</small>
                         </div>
+
                         <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label">Name (Optional)</label>
-                            <input type="text" class="form-control" id="name" name="name" placeholder="e.g., Wilbur, Babe">
-                            <small class="text-muted">Leave blank if you don't want to name the pig</small>
+                            <label for="barn_id" class="form-label">Barn *</label>
+                            <select class="form-select" id="barn_id" name="barn_id" required onchange="updateSections()">
+                                <option value="">Choose a barn...</option>
+                                {% for barn in barns %}
+                                <option value="{{ barn.id }}">{{ barn.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
-                    
+
                     <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="section_id" class="form-label">Section (optional)</label>
+                            <select class="form-select" id="section_id" name="section_id">
+                                <option value="">None</option>
+                                <option value="" disabled>--- Select a barn first ---</option>
+                            </select>
+                        </div>
+
                         <div class="col-md-6 mb-3">
                             <label for="dob" class="form-label">Date of Birth *</label>
                             <input type="date" class="form-control" id="dob" name="dob" required>
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="sex" class="form-label">Sex *</label>
                             <select class="form-select" id="sex" name="sex" required>
@@ -39,30 +55,65 @@
                                 <option value="Female">Female</option>
                             </select>
                         </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
+
+                        <div class="col-md-6 mb-3">
                             <label for="breed" class="form-label">Breed *</label>
-                            <input type="text" class="form-control" id="breed" name="breed" 
-                                   placeholder="e.g., Yorkshire, Duroc, Hampshire, Berkshire" required>
+                            <input type="text" class="form-control" id="breed" name="breed"
+                                   placeholder="e.g., Yorkshire, Duroc, Hampshire" required>
                         </div>
                     </div>
-                    
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (optional)</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"
+                                  placeholder="Add any notes about this pig..."></textarea>
+                    </div>
+
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-circle"></i> Add Pig
                         </button>
+
                         <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle"></i> Cancel
                         </a>
                     </div>
+
                 </form>
+
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+<script>
+    // Store sections data
+    const barnSections = {
+        {% for barn in barns %}
+        {{ barn.id }}: [
+            {% for section in barn.sections %}
+            { id: {{ section.id }}, name: '{{ section.name }}' }{{ "," if not loop.last }}
+            {% endfor %}
+        ]{{ "," if not loop.last }}
+        {% endfor %}
+    };
+
+    function updateSections() {
+        const barnId = document.getElementById('barn_id').value;
+        const sectionSelect = document.getElementById('section_id');
+
+        sectionSelect.innerHTML = '<option value="">None</option>';
+
+        if (barnId && barnSections[barnId]) {
+            barnSections[barnId].forEach(section => {
+                const option = document.createElement('option');
+                option.value = section.id;
+                option.textContent = section.name;
+                sectionSelect.appendChild(option);
+            });
+        }
+    }
+</script>
 {% endblock %}
