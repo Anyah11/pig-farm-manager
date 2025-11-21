@@ -168,21 +168,4 @@ print(secrets.token_hex(32))
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📝 License
 
-This project is licensed under the MIT License.
-
-## 👨‍💻 Author
-
-Your Name - [GitHub Profile](https://github.com/yourusername)
-
-## 🙏 Acknowledgments
-
-- Flask documentation
-- Bootstrap framework
-- Matplotlib library
-
-## 📞 Support
-
-For issues or questions, please open an issue on GitHub.
-```
